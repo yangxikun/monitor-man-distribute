@@ -31,11 +31,11 @@
     </nav>
       <div class="container-fluid">
         <div class="row">
-          <div class="col"></div>
+          <div class="col-2"></div>
           <div class="col-8">
             <router-view></router-view>
           </div>
-          <div class="col"></div>
+          <div class="col-2"></div>
         </div>
       </div>
     </body>
@@ -63,7 +63,9 @@
     },
     watch: {
       tag(val) {
-        Bus.$emit('tag', val);
+        if (val !== undefined) {
+          Bus.$emit('tag', val);
+        }
       },
       '$route': 'activateNav'
     },

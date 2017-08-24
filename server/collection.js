@@ -16,17 +16,46 @@ router.get('/', async function (ctx) {
   }
 });
 
+// get collection execution failure
 router.get('/:collectionId/:distribute/failure/:id', async function (ctx) {
   const redisClient = redis.getReadConn();
   ctx.response.body = await redisClient.hgetAsync(
     'monitor-man-summary-failures-' + ctx.params.collectionId + '-' + ctx.params.distribute, ctx.params.id);
 });
 
+// download collectionFile, iterationData, environment
+router.get('/:collectionId/download/:type', async function (ctx) {
+  const collectionId = ctx.params.collectionId;
+  const redisClient = redis.getReadConn();
+  let collectionInfo = await redisClient.hgetAsync('monitor-man-collection',collectionId);
+  if (!collectionInfo) {
+    ctx.throw(400, 'Collection not found.');
+  }
+  collectionInfo = JSON.parse(collectionInfo);
+  const type = ctx.params.type;
+  if (type === "collectionFile") {
+    ctx.response.body = await redisClient.hgetAsync('monitor-man-' + type, collectionId);
+    ctx.response.set('Content-disposition', 'attachment; filename=' + collectionInfo.originalCollectionFileName);
+    ctx.response.set('Content-type', 'application/octet-stream');
+    return;
+  }
+
+  const distribute = ctx.request.query.distribute;
+  if (!distribute || !collectionInfo[type] || !collectionInfo[type][distribute]) {
+    ctx.throw(400, 'Invalid distribute or type.');
+    return;
+  }
+
+  const file = collectionInfo[type][distribute];
+  ctx.response.body = await redisClient.hgetAsync('monitor-man-' + type, collectionId + '-' + distribute);
+  ctx.response.set('Content-disposition', 'attachment; filename=' + file.originalName);
+  ctx.response.set('Content-type', 'application/octet-stream');
+});
+
 // get collections by tag
 router.get('/tag/:tag', async function (ctx) {
   const redisClient = redis.getReadConn();
   let collectionIds = await redisClient.smembersAsync('monitor-man-tag-'+ctx.params.tag);
-  console.log(collectionIds)
   if (!collectionIds) {
     ctx.response.body = [];
     return;

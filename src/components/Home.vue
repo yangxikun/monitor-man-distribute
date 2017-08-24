@@ -15,7 +15,7 @@
       </h5>
       <div class="card-block">
         <p class="card-text" v-if="item.description">{{item.description}}</p>
-        <table class="table">
+        <table class="table table-responsive">
           <tbody>
             <tr :class="{ 'distribute-warn': info.summary && (info.summary.assertions.failed > 0 || info.summary.testScripts.failed > 0) }" v-for="(info, distribute) in item.distributes">
               <td>
@@ -108,9 +108,12 @@
     },
     created() {
       let tag = this.$cookie.get('tag');
+      console.log(tag)
       if (!tag) {
         tag = '';
+        console.log("xxxx")
       }
+      console.log(tag)
       this.fetchData(tag);
       Bus.$on('tag', tag => {
         this.$cookie.set('tag', tag, 30);
@@ -194,4 +197,7 @@
     cursor: pointer
   .distribute-warn
     background-color: #ffd0d0
+  table
+    td
+      padding: 0.72rem
 </style>

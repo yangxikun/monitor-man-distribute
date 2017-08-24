@@ -34,6 +34,12 @@
             <td>bail</td>
             <td>{{collection.newmanOption.bail}}</td>
           </tr>
+          <tr>
+            <td>collection file</td>
+            <td>
+              <a :href="downloadLink('', 'collectionFile')">Download</a>
+            </td>
+          </tr>
           <tr v-for="(distribute, name) in collection.distributes">
             <td>{{name}}</td>
             <td>
@@ -44,6 +50,8 @@
               <span v-show="!distribute.eye" v-on:click="eyeSlash(name, false)" style="float: right;margin-right: 1.2rem;color: #888888;cursor:pointer;">
               <icon name="eye-slash"></icon>
               </span>
+              <a v-if="collection.iterationData[name]" :href="downloadLink(name, 'iterationData')">Download iterationData</a>
+              <a v-if="collection.environment[name]" :href="downloadLink(name, 'environment')">Download environment</a>
             </td>
           </tr>
           <tr>
@@ -81,7 +89,7 @@
 </template>
 
 <script>
-  import ShowChart from './ShowChart'
+  import ShowChart from './ShowLineChart'
   import PieChart from '../charts/Pie'
   import ErrModal from '../Modal/ErrModal'
 
@@ -115,7 +123,7 @@
         collectionId: this.$route.params.id,
         startTime: startTime.Format("yyyy-MM-dd HH:mm:ss"),
         endTime: endTime.Format("yyyy-MM-dd HH:mm:ss"),
-        collection: {newmanOption: {}},
+        collection: {newmanOption: {}, distributes: {}},
         summaries: {},
         eyeSlashSummaries: {},
         assertionsPieDataCollection: null,
@@ -132,27 +140,14 @@
     mounted() {
       const collectionId = this.$route.params.id;
       const item = this.$route.params.item;
-      if (item) {
-        this.eye(item);
-        this.collection = item;
-        this.go();
-      } else {
-        this.$http.get('/collection/'+collectionId)
-          .then(resp => {
-            this.eye(resp.data);
-            this.collection = resp.data;
-            this.go();
-          }).catch(error => {
-            this.error('http request: '+'/collection/'+collectionId, JSON.stringify(error));
-          });
-      }
-      // get summaries
-//      this.$http.get('/collection/'+collectionId+'/summaries?distributes='+this.distributes.join(","))
-//        .then(resp => {
-//          this.update(resp.data, true);
-//        }).catch(error => {
-//          console.log(error)
-//        });
+      this.$http.get('/collection/'+collectionId)
+        .then(resp => {
+          this.eye(resp.data);
+          this.collection = resp.data;
+          this.go();
+        }).catch(error => {
+          this.error('http request: '+'/collection/'+collectionId, JSON.stringify(error));
+        });
     },
     methods: {
       eye(collection) {
@@ -184,6 +179,8 @@
         }
         if (change) {
           this.update(this.summaries, false);
+        } else {
+          this.$nextTick();
         }
       },
       go() {
@@ -272,6 +269,9 @@
         console.log('time', end - start)
         this.summaries = summaries;
         this.showLine = true;
+      },
+      downloadLink(distribute, type) {
+        return "/collection/" + this.collectionId + "/download/" + type + "?distribute=" + distribute;
       },
       error(title, message) {
         this.errModal.title = title;
