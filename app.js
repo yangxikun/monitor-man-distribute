@@ -2,7 +2,11 @@ const app = new (require('koa'))()
   , json = require('koa-json')
   , appLogger = require('./server/util/log').get('app')
   , onerror = require('koa-onerror')
-  , collectionSync = require('./server/util/sync');
+  , collectionSync = require('./server/util/sync')
+  , path =require('path')
+  , staticServe = require('koa-static');
+
+app.use(staticServe(path.resolve('dist')));
 
 onerror(app);
 require('koa-validate')(app);
