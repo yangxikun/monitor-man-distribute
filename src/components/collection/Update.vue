@@ -100,9 +100,7 @@
     name: 'collectionUpdate',
     data() {
       return {
-        handlers: [
-          {id: 'xxx', name: 'test-handler'}
-        ],
+        handlers: [],
         form: {
           tag: '',
           reserved: 3,
@@ -123,18 +121,20 @@
       }
     },
     created() {
-      const item = this.$route.params.item;
-      if (item) {
-        this.updateForm(item);
-      } else {
-        const uri = '/collection/'+this.$route.params.id;
-        this.$http.get(uri)
-          .then(resp => {
-            this.updateForm(resp.data);
-          }).catch(error => {
-            this.$bus.$emit('error', 'http request: ' + uri, error.message)
-          });
-      }
+      let uri = '/collection/'+this.$route.params.id;
+      this.$http.get(uri)
+        .then(resp => {
+          this.updateForm(resp.data);
+        }).catch(error => {
+        this.$bus.$emit('error', 'http request: ' + uri, error.message)
+      });
+      uri = '/handler';
+      this.$http.get(uri)
+        .then(resp => {
+          this.handlers = resp.data;
+        }).catch(error => {
+        this.$bus.$emit('error', 'http request: ' + uri, error.message)
+      });
     },
     methods: {
       updateForm: function (item) {

@@ -2,7 +2,7 @@
   <div>
     <div class="card" v-for="item in items">
       <h5 class="card-header" style="color: #308ede;">
-        <router-link :to="{ name: 'CollectionShow', params: {id: item.id, item: item} }">
+        <router-link :to="{ name: 'CollectionShow', params: {id: item.id} }">
           {{item.name}}
         </router-link>
         <span class="badge badge-default" style="margin: 0 5px;" v-for="tag in item.tag">{{tag}}</span>

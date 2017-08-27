@@ -100,9 +100,7 @@
     name: 'collectionCreate',
     data() {
       return {
-        handlers: [
-          {id: 'xxx', name: 'test-handler'}
-        ],
+        handlers: [],
         form: {
           reserved: 3,
           interval: 60000,
@@ -115,6 +113,15 @@
         },
         distributes: []
       }
+    },
+    created() {
+      const uri = '/handler';
+      this.$http.get(uri)
+        .then(resp => {
+          this.handlers = resp.data;
+        }).catch(error => {
+        this.$bus.$emit('error', 'http request: ' + uri, error.message)
+      });
     },
     methods: {
       updateDistributeList: function () {
