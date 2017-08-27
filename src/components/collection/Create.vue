@@ -4,9 +4,14 @@
     <p>see <a href="https://github.com/postmanlabs/newman#newmanrunoptions-object--callback-function--run-eventemitter">newman.run options</a> for more information.</p>
     <form v-on:submit.prevent="submit">
       <div class="form-group row">
-        <label class="col-2 col-form-label">Tag</label>
+        <label class="col-2 col-form-label">tag</label>
         <input v-model="form.tag" type="text" class="col-10 form-control">
-        <small class="col-12 form-text text-muted">aggregate your collection by tag, use comma to separate multi tag</small>
+        <small class="col-12 form-text text-muted">Aggregate your collection by tag, use comma to separate multi tag</small>
+      </div>
+      <div class="form-group row">
+        <label class="col-2 col-form-label">reserved date</label>
+        <input v-model="form.reserved" type="text" class="col-10 form-control">
+        <small class="col-12 form-text text-muted">Collection running result reserved date</small>
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">collection</label>
@@ -15,20 +20,20 @@
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">interval(ms)</label>
-        <input v-model="form.interval" type="text" class="col-10 form-control" value="60000">
+        <input v-model="form.interval" type="text" class="col-10 form-control">
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">timeoutRequest(ms)</label>
-        <input v-model="form.timeoutRequest" type="text" class="col-10 form-control" value="0">
+        <input v-model="form.timeoutRequest" type="text" class="col-10 form-control">
         <small class="col-12 form-text text-muted">0 indicate Infinity</small>
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">delayRequest(ms)</label>
-        <input v-model="form.delayRequest" type="text" class="col-10 form-control" value="0">
+        <input v-model="form.delayRequest" type="text" class="col-10 form-control">
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">iterationCount</label>
-        <input v-model="form.iterationCount" type="text" class="col-10 form-control" value="1">
+        <input v-model="form.iterationCount" type="text" class="col-10 form-control">
       </div>
       <div class="form-group row">
         <label class="col-2 col-form-label">distribute</label>
@@ -85,7 +90,7 @@
           <small class="text-muted">(Switch to specify whether or not to gracefully stop a collection run on encountering the first error.)</small>
         </label>
       </div>
-      <input type="submit" value="Submit">
+      <button type="submit" class="btn btn-primary mm-click">Submit</button>
     </form>
   </div>
 </template>
@@ -99,6 +104,7 @@
           {id: 'xxx', name: 'test-handler'}
         ],
         form: {
+          reserved: 3,
           interval: 60000,
           timeoutRequest: 0,
           delayRequest: 0,
@@ -148,11 +154,12 @@
         for (let key in this.form) {
           formData.append(key, this.form[key])
         }
-        this.$http.post('/collection', formData)
+        const uri = '/collection';
+        this.$http.post(uri, formData)
           .then(() => {
             this.$router.push('/');
           }).catch(error => {
-            console.log(error)
+            this.$bus.$emit('error', 'http request: ' + uri, error.message)
         })
       }
     }

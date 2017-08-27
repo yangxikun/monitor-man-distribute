@@ -177,6 +177,7 @@ router.post('/:id/update', async function (ctx) {
   const oldTag = collectionInfo['tag'];
   collectionInfo['tag'] = ctx.checkBody('tag').optional().default('').value.split(',');
   collectionInfo['tag'] = collectionInfo['tag'].filter(function(n){ return n !== "" });
+  collectionInfo['reserved'] = ctx.checkBody('reserved').isInt().toInt().value;
   collectionInfo['interval'] = ctx.checkBody('interval').isInt().gt(1000).toInt().value;
   collectionInfo['handler'] = ctx.checkBody('handler').optional().default('').value;
   collectionInfo['handlerParams'] = ctx.checkBody('handlerParams').optional().isJSON().default('{}').value;
@@ -308,6 +309,7 @@ router.post('/', async function (ctx) {
   let collectionInfo = {distributes: {}, newmanOption: {}};
   collectionInfo['tag'] = ctx.checkBody('tag').optional().default('').value.split(',');
   collectionInfo['tag'] = collectionInfo['tag'].filter(function(n){ return n !== "" });
+  collectionInfo['reserved'] = ctx.checkBody('reserved').isInt().toInt().value;
   collectionInfo['interval'] = ctx.checkBody('interval').isInt().gt(1000).toInt().value;
   collectionInfo['handler'] = ctx.checkBody('handler').optional().default('').value;
   collectionInfo['handlerParams'] = ctx.checkBody('handlerParams').optional().isJSON().default('{}').value;

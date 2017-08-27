@@ -40,7 +40,7 @@
 </template>
 
 <script>
-  import Modal from '../Modal/JsonViewModal'
+  import Modal from '../modal/JsonViewModal'
   import LineChart from '../charts/Line'
 
   export default {

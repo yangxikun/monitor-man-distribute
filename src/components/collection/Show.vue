@@ -11,6 +11,10 @@
             <td>{{collection.interval}}ms</td>
           </tr>
           <tr>
+            <td>reserved date</td>
+            <td>{{collection.reserved}}day</td>
+          </tr>
+          <tr>
             <td>iterationCount</td>
             <td>{{collection.newmanOption.iterationCount}}</td>
           </tr>
@@ -69,36 +73,53 @@
         </table>
       </div>
     </div>
-    <div class="row" style="margin-bottom: 50px;height: 22rem;">
-      <div class="col-1"></div>
-      <div class="col-4">
-        <pie-chart :chart-data="assertionsPieDataCollection" :options="{title: {display: true, text: 'assertions failures', padding: 5}, legend: {position: 'bottom'}}" v-show="showAssertionsPie"></pie-chart>
+    <div class="row" style="margin-bottom: 50px;">
+      <div class="col-5" v-if="assertionsFailures">
+        <table class="table">
+          <thead>
+            <tr>
+              <th colspan="2">Assertions Failures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(count, name) in assertionsFailures">
+              <td>{{name}}</td>
+              <td>{{count}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="col-2"></div>
-      <div class="col-4">
-        <pie-chart :chart-data="testScriptsPieDataCollection" :options="{title: {display: true, text: 'testScripts failures', padding: 5}, legend: {position: 'bottom'}}" v-show="showTestScriptsPie"></pie-chart>
+      <div class="col-5" v-if="testScriptsFailures">
+        <table class="table">
+          <thead>
+          <tr>
+            <th colspan="2">TestScripts Failures</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="(count, name) in testScriptsFailures">
+            <td>{{name}}</td>
+            <td>{{count}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="col-1"></div>
     </div>
     <div class="row" v-show="!showLine">
       <h1 style="margin: auto;color: #9e9e9e;">Loading...</h1>
     </div>
     <show-chart v-show="showLine" :collectionId="collectionId" :summary="summary" :distribute="distribute" :key="distribute" v-for="(summary, distribute) in summaries"></show-chart>
-    <err-modal :show="errModal.show" :title="errModal.title" :message="errModal.message" v-on:close="errModal.show = false"></err-modal>
   </div>
 </template>
 
 <script>
   import ShowChart from './ShowLineChart'
-  import PieChart from '../charts/Pie'
-  import ErrModal from '../Modal/ErrModal'
 
   export default {
     name: 'collectionShow',
     components: {
       ShowChart,
-      PieChart,
-      ErrModal
     },
     data() {
       // from: http://www.cnblogs.com/zhangpengshou/archive/2012/07/19/2599053.html
@@ -126,27 +147,24 @@
         collection: {newmanOption: {}, distributes: {}},
         summaries: {},
         eyeSlashSummaries: {},
-        assertionsPieDataCollection: null,
-        testScriptsPieDataCollection: null,
-        showAssertionsPie: false,
-        showTestScriptsPie: false,
+        assertionsFailures: null,
+        testScriptsFailures: null,
         showLine: false,
         distributes: [],
         errModal: {
           show: false
-        }
+        },
       }
     },
     mounted() {
       const collectionId = this.$route.params.id;
-      const item = this.$route.params.item;
       this.$http.get('/collection/'+collectionId)
         .then(resp => {
           this.eye(resp.data);
           this.collection = resp.data;
           this.go();
         }).catch(error => {
-          this.error('http request: '+'/collection/'+collectionId, JSON.stringify(error));
+          this.$bus.$emit('error', 'http request: '+'/collection/'+collectionId, error.message);
         });
     },
     methods: {
@@ -159,14 +177,11 @@
       eyeSlash(name, val) {
         this.collection.distributes[name].eye = !val;
         let change = false;
-        console.log(val, name)
         if (val) {
           const index = this.distributes.indexOf(name);
-          console.log(name, index)
           if (index > -1) {
             this.distributes.splice(index, 1);
           }
-          console.log(this.distributes)
           if (this.summaries[name]) {
             this.eyeSlashSummaries[name] = this.summaries[name];
             delete this.summaries[name];
@@ -186,12 +201,12 @@
       go() {
         const s = (new Date(this.startTime)).getTime();
         if (isNaN(s)) {
-          this.error('time picker', 'invalid startTime: ' + this.startTime);
+          this.$bus.$emit('error', 'time picker', 'invalid startTime: ' + this.startTime);
           return;
         }
         const e = (new Date(this.endTime)).getTime();
         if (isNaN(e)) {
-          this.error('time picker', 'invalid endTime: ' + this.endTime);
+          this.$bus.$emit('error', 'time picker', 'invalid endTime: ' + this.endTime);
           return;
         }
         const collectionId = this.$route.params.id;
@@ -200,13 +215,12 @@
           .then(resp => {
             this.update(resp.data, true);
           }).catch(error => {
-            this.error('http request: '+uri, JSON.stringify(error));
+            this.$bus.$emit('error', 'http request: '+uri, error.message);
           });
       },
       update(summaries, jsonParse) {
-        const start = Date.now();
-        let assertionsPieData = {};
-        let testScriptsPieData = {};
+        let assertionsFailures = {};
+        let testScriptsFailures = {};
         for (let distribute in summaries) {
           for (let index in summaries[distribute]) {
             if (jsonParse) {
@@ -215,69 +229,40 @@
             let failures = summaries[distribute][index].assertions.failures;
             for (let id in failures) {
               const key = distribute+'-'+failures[id];
-              if (assertionsPieData[key]) {
-                assertionsPieData[key]++;
+              if (assertionsFailures[key]) {
+                assertionsFailures[key]++;
               } else {
-                assertionsPieData[key] = 1;
+                assertionsFailures[key] = 1;
               }
             }
             failures = summaries[distribute][index].testScripts.failures;
             for (let id in failures) {
               const key = distribute+'-'+failures[id];
-              if (testScriptsPieData[key]) {
-                testScriptsPieData[key]++;
+              if (testScriptsFailures[key]) {
+                testScriptsFailures[key]++;
               } else {
-                testScriptsPieData[key] = 1;
+                testScriptsFailures[key] = 1;
               }
             }
           }
         }
-
-        if (Object.keys(assertionsPieData).length > 0) {
-          let _pieDataCollection = {labels: [], datasets: []};
-          let _pieData = [];
-          let backgroundColor = [];
-          for (let index in assertionsPieData) {
-            _pieDataCollection.labels.push(index);
-            _pieData.push(assertionsPieData[index]);
-            backgroundColor.push('#' + Math.random().toString(16).slice(2, 8));
-          }
-          _pieDataCollection.datasets.push({data: _pieData, backgroundColor: backgroundColor});
-          this.assertionsPieDataCollection = _pieDataCollection;
-          this.showAssertionsPie = true;
+        if (Object.keys(assertionsFailures).length > 0) {
+          this.assertionsFailures = assertionsFailures;
         } else {
-          this.assertionsPieDataCollection = {labels: [], datasets: []};
+          this.assertionsFailures = null;
+        }
+        if (Object.keys(testScriptsFailures).length > 0) {
+          this.testScriptsFailures = testScriptsFailures;
+        } else {
+          this.testScriptsFailures = null;
         }
 
-        if (Object.keys(testScriptsPieData).length > 0) {
-          let _pieDataCollection = {labels: [], datasets: []};
-          let _pieData = [];
-          let backgroundColor = [];
-          for (let index in testScriptsPieData) {
-            _pieDataCollection.labels.push(index);
-            _pieData.push(testScriptsPieData[index]);
-            backgroundColor.push('#' + Math.random().toString(16).slice(2, 8));
-          }
-          _pieDataCollection.datasets.push({data: _pieData, backgroundColor: backgroundColor});
-          this.testScriptsPieDataCollection = _pieDataCollection;
-          this.showTestScriptsPie = true;
-        } else {
-          this.testScriptsPieDataCollection = {labels: [], datasets: []};
-        }
-
-        const end = Date.now()
-        console.log('time', end - start)
         this.summaries = summaries;
         this.showLine = true;
       },
       downloadLink(distribute, type) {
         return "/collection/" + this.collectionId + "/download/" + type + "?distribute=" + distribute;
       },
-      error(title, message) {
-        this.errModal.title = title;
-        this.errModal.message = message;
-        this.errModal.show = true;
-      }
     }
   }
 </script>

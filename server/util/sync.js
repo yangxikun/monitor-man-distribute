@@ -18,7 +18,7 @@ const _sync = {
         }
 
         // clean failures
-        this.rotateSummaries(id, curDistribute);
+        this.rotateSummaries(id, curDistribute, collectionInfo.reserved);
 
         const i = intervalIds.get(id);
         const distribute = collectionInfo.distributes[curDistribute];
@@ -92,10 +92,10 @@ const _sync = {
       newman.run(newmanOption, id);
     }, interval);
   },
-  rotateSummaries: async function(collectionId, distribute) {
+  rotateSummaries: async function(collectionId, distribute, reserved) {
     let redisClient = redis.getWriteConn();
     const now = Date.now();
-    const summaries = await redisClient.zrangebyscoreAsync('monitor-man-summary-' + collectionId + '-' + distribute, 0, now-3*24*3600*1000);
+    const summaries = await redisClient.zrangebyscoreAsync('monitor-man-summary-' + collectionId + '-' + distribute, 0, now-reserved*24*3600*1000);
     const failuresKey = 'monitor-man-summary-failures-' + collectionId + '-' + distribute;
     for (let index in summaries) {
       const _summaries = JSON.parse(summaries[index]);
@@ -106,7 +106,7 @@ const _sync = {
         await redisClient.hdelAsync(failuresKey, failureId);
       }
     }
-    await redisClient.zremrangebyscoreAsync('monitor-man-summary-' + collectionId + '-' + distribute, 0, now-3*24*3600*1000);
+    await redisClient.zremrangebyscoreAsync('monitor-man-summary-' + collectionId + '-' + distribute, 0, now-reserved*24*3600*1000);
   }
 };
 

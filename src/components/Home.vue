@@ -6,10 +6,10 @@
           {{item.name}}
         </router-link>
         <span class="badge badge-default" style="margin: 0 5px;" v-for="tag in item.tag">{{tag}}</span>
-        <span v-on:click="showConfirm('Delete collection', 'delete '+item.name, item.id, remove)" class="click" style="float: right;margin-left: 10px;">
+        <span v-on:click="showConfirm('Delete collection', 'delete '+item.name, item.id, remove)" class="mm-click" style="float: right;margin-left: 10px;">
         <icon name="remove"></icon>
         </span>
-        <router-link :to="{ name: 'CollectionUpdate', params: {id: item.id, item: item} }" style="float: right;">
+        <router-link :to="{ name: 'CollectionUpdate', params: {id: item.id} }" style="float: right;">
           <icon name="edit"></icon>
         </router-link>
       </h5>
@@ -24,17 +24,17 @@
                 </button>
               </td>
               <td v-if="info.status == 'running' && info.summary">
-                <button class="btn btn-success btn-sm click" v-on:click="showConfirm('Change collection status', 'stop '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'stop'}, setStatus)">
+                <button class="btn btn-success btn-sm mm-click" v-on:click="showConfirm('Change collection status', 'stop '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'stop'}, setStatus)">
                   running
                 </button>
               </td>
               <td v-if="info.status == 'running' && !info.summary">
-                <button class="btn btn-warning btn-sm click" v-on:click="showConfirm('Change collection status', 'stop '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'stop'}, setStatus)">
+                <button class="btn btn-warning btn-sm mm-click" v-on:click="showConfirm('Change collection status', 'stop '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'stop'}, setStatus)">
                   running
                 </button>
               </td>
               <td v-if="info.status == 'stop'">
-                <button class="btn btn-danger btn-sm click" v-on:click="showConfirm('Change collection status', 'start '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'running'}, setStatus)">
+                <button class="btn btn-danger btn-sm mm-click" v-on:click="showConfirm('Change collection status', 'start '+item.name+' '+distribute, {id: item.id, distribute: distribute, status: 'running'}, setStatus)">
                   stop
                 </button>
               </td>
@@ -57,7 +57,7 @@
                 <button class="btn btn-danger btn-sm" disabled="disabled" v-if="info.summary && info.summary.assertions.failed == 0">
                   Assertions failure <span class="badge my-badge-danger badge-pill">{{info.summary.assertions.failed}}</span>
                 </button>
-                <button class="btn btn-danger btn-sm click" v-on:click="showFailures(item.id, distribute, info.summary.assertions.failures, 'Assertions Failures')" v-else-if="info.summary">
+                <button class="btn btn-danger btn-sm mm-click" v-on:click="showFailures(item.id, distribute, info.summary.assertions.failures, 'Assertions Failures')" v-else-if="info.summary">
                   Assertions failure <span class="badge my-badge-danger badge-pill">{{info.summary.assertions.failed}}</span>
                 </button>
               </td>
@@ -70,7 +70,7 @@
                 <button class="btn btn-danger btn-sm" disabled="disabled" v-if="info.summary && info.summary.testScripts.failed == 0">
                   TestScripts failure <span class="badge my-badge-danger badge-pill">{{info.summary.testScripts.failed}}</span>
                 </button>
-                <button class="btn btn-danger btn-sm click" v-on:click="showFailures(item.id, distribute, info.summary.testScripts.failures, 'TestScripts Failures')" v-else-if="info.summary">
+                <button class="btn btn-danger btn-sm mm-click" v-on:click="showFailures(item.id, distribute, info.summary.testScripts.failures, 'TestScripts Failures')" v-else-if="info.summary">
                   TestScripts failure <span class="badge my-badge-danger badge-pill">{{info.summary.testScripts.failed}}</span>
                 </button>
               </td>
@@ -86,8 +86,8 @@
 
 <script>
   import Bus from '../Bus'
-  import Modal from './Modal/JsonViewModal'
-  import ConfirmModal from './Modal/ConfirmModal'
+  import Modal from './modal/JsonViewModal'
+  import ConfirmModal from './modal/ConfirmModal'
   export default {
     name: 'home',
     components: {
@@ -103,17 +103,15 @@
         confirmModal: {
           show: false,
           data: null
-        }
+        },
+        tag: ''
       }
     },
     created() {
       let tag = this.$cookie.get('tag');
-      console.log(tag)
       if (!tag) {
         tag = '';
-        console.log("xxxx")
       }
-      console.log(tag)
       this.fetchData(tag);
       Bus.$on('tag', tag => {
         this.$cookie.set('tag', tag, 30);
@@ -122,6 +120,7 @@
     },
     methods: {
       fetchData(tag) {
+        this.tag = tag;
         let uri = '/collection';
         if (tag !== '') {
           uri += '/tag/' + tag;
@@ -129,7 +128,7 @@
         this.$http.get(uri).then(resp => {
           this.items = resp.data;
         }).catch(error => {
-          console.log(error);
+          this.$bus.$emit('error', 'http request: ' + uri, error.message);
         });
       },
       showFailures(id, distribute, failures, title) {
@@ -152,21 +151,23 @@
       },
       remove(confirmModal) {
         confirmModal.show = false;
-        this.$http.delete('/collection/'+confirmModal.data)
-          .then(resp => {
-            this.fetchData('');
+        const uri = '/collection/'+confirmModal.data;
+        this.$http.delete(uri)
+          .then(() => {
+            this.fetchData(this.tag);
           }).catch(error => {
-            console.log(error);
+            this.$bus.$emit('error', 'http request: ' + uri, error.message);
           });
       },
       setStatus(confirmModal) {
         confirmModal.show = false;
         const data = confirmModal.data;
-        this.$http.post('/collection/'+data.id+'/'+data.distribute+'/'+data.status)
-          .then(resp => {
-            this.fetchData('');
+        const uri = '/collection/'+data.id+'/'+data.distribute+'/'+data.status;
+        this.$http.post(uri)
+          .then(() => {
+            this.fetchData(this.tag);
           }).catch(error => {
-            console.log(error);
+            this.$bus.$emit('error', 'http request: ' + uri, error.message);
           });
       }
     }
@@ -193,8 +194,6 @@
     color: #333
     background-color: #fff
     border-color: #ccc
-  .click
-    cursor: pointer
   .distribute-warn
     background-color: #ffd0d0
   table

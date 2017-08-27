@@ -131,7 +131,7 @@ const _newman = {
               distribute: curDistribute
             };
             const obj = JSON.parse(handler);
-            safeEval(obj.script, context);
+            safeEval(obj.code, context);
           }); // hget
         }
       } catch (e) {

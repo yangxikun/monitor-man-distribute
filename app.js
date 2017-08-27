@@ -25,6 +25,10 @@ const tag = require('./server/tag');
 app.use(tag.routes());
 app.use(tag.allowedMethods());
 
+const handler = require('./server/handler');
+app.use(handler.routes());
+app.use(handler.allowedMethods());
+
 app.on('error', function(err, ctx){
   appLogger.error('server error', err);
 });

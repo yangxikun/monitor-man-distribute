@@ -39,32 +39,41 @@
         </div>
       </div>
     </body>
+    <err-modal :show="errModal.show" :title="errModal.title" :message="errModal.message" v-on:close="errModal.show = false"></err-modal>
   </html>
 </template>
 
 <script>
-  import Bus from './Bus'
   export default {
     name: 'app',
     data() {
       return {
         tags: [],
         tag: this.$cookie.get('tag'),
-        nav: 'home'
+        nav: 'home',
+        errModal: {
+          show: false
+        },
       }
     },
     created() {
+      this.$bus.$on('error', (title, msg) => {
+        this.errModal.title = title;
+        this.errModal.message = msg;
+        this.errModal.show = true;
+      });
+      this.activateNav();
       this.$http.get('/tag')
         .then(resp => {
           this.tags = resp.data;
         }).catch(error => {
-        console.log(error);
+        this.$bus.$emit('error', 'http request: /tag', error.message);
       });
     },
     watch: {
       tag(val) {
         if (val !== undefined) {
-          Bus.$emit('tag', val);
+          this.$bus.$emit('tag', val);
         }
       },
       '$route': 'activateNav'
@@ -75,7 +84,7 @@
           .then(resp => {
             this.tags = resp.data;
           }).catch(error => {
-          console.log(error);
+          this.$bus.$emit('error', 'http request: /tag', error.message);
         });
         if (this.$route.name === 'Home') {
           this.nav = 'home';
@@ -84,7 +93,7 @@
         } else if (this.$route.name.indexOf('Handler') === 0) {
           this.nav = 'handler';
         }
-      }
+      },
     }
   }
 </script>

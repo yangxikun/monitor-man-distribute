@@ -20,8 +20,14 @@ import 'vue-awesome/icons/remove'
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/eye-slash'
 import Icon from 'vue-awesome/components/Icon'
-
 Vue.component('icon', Icon);
+
+import ErrModal from './components/modal/ErrModal'
+Vue.component('err-modal', ErrModal);
+
+import Bus from './Bus'
+Vue.prototype.$bus = Bus;
+
 Vue.use(BootstrapVue);
 Vue.use(VueCookie);
 Vue.config.productionTip = false;
