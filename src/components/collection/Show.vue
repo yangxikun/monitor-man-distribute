@@ -78,7 +78,7 @@
         <table class="table">
           <thead>
             <tr>
-              <th colspan="2">Assertions Failures</th>
+              <th colspan="2" style="text-align: center">Assertions Failures</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +94,7 @@
         <table class="table">
           <thead>
           <tr>
-            <th colspan="2">TestScripts Failures</th>
+            <th colspan="2" style="text-align: center">TestScripts Failures</th>
           </tr>
           </thead>
           <tbody>

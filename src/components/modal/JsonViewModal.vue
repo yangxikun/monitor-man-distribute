@@ -11,7 +11,7 @@
           </div>
           <div class="modal-body">
             <div>
-              <select v-model="failureSelected">
+              <select v-model="failureSelected" style="height: 2.2rem">
                 <option :value="id" v-for="(name, id, index) in failures">{{name}}</option>
               </select>
             </div>
@@ -72,5 +72,10 @@
   .json-view
     overflow-y: scroll
     max-height: 80vh
-    padding: 20px 10px
+    margin: 20px 10px
+</style>
+
+<style lang="stylus">
+  .tree-view-item-value-string
+    white-space: normal
 </style>

@@ -39,7 +39,7 @@ app.on('error', function(err, ctx){
 
 const port = process.env.PORT || 8889;
 app.listen(port,() => {
-  appLogger.info('monitor-man is listening in 8889');
+  appLogger.info('monitor-man is listening in ' + port);
 
   // sync collection
   collectionSync.run();

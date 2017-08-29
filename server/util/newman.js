@@ -3,7 +3,8 @@ const newman = require('newman')
   , intervalIds = require('./intervalIds')
   , redis = require('./redis')
   , date = require('date-and-time')
-  , uuidv1 = require('uuid/v1');
+  , uuidv1 = require('uuid/v1')
+  , safeEval = require('safe-eval');
 
 const _newman = {
   run: function (newmanOption, collectionId) {
@@ -56,7 +57,7 @@ const _newman = {
           failed: testScripts.failed,
           failures: {},
         };
-        redisClient = redisClient.multi();
+        let redisClientMulti = redisClient.multi();
         const failures = summary.run.failures;
         if (failures.length > 0) {
           let _failures = {};
@@ -85,20 +86,20 @@ const _newman = {
               if (execution.assertions) {
                 const _failureId = failureId+'a'+i+index;
                 _summary['assertions'].failures[_failureId] = name;
-                redisClient = redisClient
+                redisClientMulti = redisClientMulti
                   .hset('monitor-man-summary-failures-' + collectionId + '-' + curDistribute, _failureId, jsonExecution);
               }
               if (execution.testScript) {
                 const _failureId = failureId+'t'+i+index;
                 _summary['testScripts'].failures[_failureId] = name;
-                redisClient = redisClient
+                redisClientMulti = redisClientMulti
                   .hset('monitor-man-summary-failures-' + collectionId + '-' + curDistribute, _failureId, jsonExecution);
               }
             }
           }
         }
         collectionInfo.distributes[curDistribute]['summary'] = _summary;
-        redisClient = redisClient
+        redisClientMulti
           .zadd('monitor-man-summary-' + collectionId + '-' + curDistribute, summary.run.timings.completed, JSON.stringify(_summary))
           .hset('monitor-man-collection', collectionId, JSON.stringify(collectionInfo))
           .exec(function (err, reply) {
@@ -109,11 +110,8 @@ const _newman = {
 
         // alert failures
         if (collectionInfo.handler !== '' && failures.length > 0) {
-          redisClient.hget('monitor-man-handlers', collectionInfo.handler, function (err, handler) {
-            if (err) {
-              newmanIntervalLogger.error(err);
-              return;
-            }
+          const handler = await redisClient.hgetAsync('monitor-man-handler', collectionInfo.handler);
+          if (handler) {
             const handlerParams = JSON.parse(collectionInfo.handlerParams);
             const request = require('postman-request');
             const sprintf = require("sprintf-js").sprintf;
@@ -131,8 +129,10 @@ const _newman = {
               distribute: curDistribute
             };
             const obj = JSON.parse(handler);
-            safeEval(obj.code, context);
-          }); // hget
+            if (obj) {
+              safeEval(obj.code, context);
+            }
+          }
         }
       } catch (e) {
         newmanIntervalLogger.error(e);

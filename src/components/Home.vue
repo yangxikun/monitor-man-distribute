@@ -189,7 +189,7 @@
     color: #d9534f
     background-color: #fff
   .btn-sm
-    font-size: 0.78rem
+    font-size: 0.76rem
   .btn-default
     color: #333
     background-color: #fff

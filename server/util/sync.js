@@ -67,7 +67,7 @@ const _sync = {
             }
           }
           if (collectionInfo.environment[curDistribute]) {
-            const environment = await redisClient.hgetAsync('monitor-man-enviroment', id + '-' + curDistribute);
+            const environment = await redisClient.hgetAsync('monitor-man-environment', id + '-' + curDistribute);
             if (environment) {
               path = collectionInfo.environment[curDistribute].path;
               if (!fs.existsSync(path)) {
