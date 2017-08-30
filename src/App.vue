@@ -31,11 +31,11 @@
     </nav>
       <div class="container-fluid">
         <div class="row">
-          <div class="col-2"></div>
-          <div class="col-8">
+          <div class="col-1"></div>
+          <div class="col-10" :style="{padding: '0 '+contentPadding+'rem'}">
             <router-view></router-view>
           </div>
-          <div class="col-2"></div>
+          <div class="col-1"></div>
         </div>
       </div>
     </body>
@@ -54,6 +54,7 @@
         errModal: {
           show: false
         },
+        contentPadding: 0
       }
     },
     created() {
@@ -87,10 +88,13 @@
           this.$bus.$emit('error', 'http request: /tag', error.message);
         });
         if (this.$route.name === 'Home') {
+          this.contentPadding = 0;
           this.nav = 'home';
         } else if (this.$route.name.indexOf('Collection') === 0) {
+          this.contentPadding = 10;
           this.nav = 'collection';
         } else if (this.$route.name.indexOf('Handler') === 0) {
+          this.contentPadding = 10;
           this.nav = 'handler';
         }
       },

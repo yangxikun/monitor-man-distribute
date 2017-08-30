@@ -1,22 +1,23 @@
 <template>
   <div>
-    <div class="card" v-for="item in items">
-      <h5 class="card-header" style="color: #308ede;">
-        <router-link :to="{ name: 'CollectionShow', params: {id: item.id} }">
-          {{item.name}}
-        </router-link>
-        <span class="badge badge-default" style="margin: 0 5px;" v-for="tag in item.tag">{{tag}}</span>
-        <span v-on:click="showConfirm('Delete collection', 'delete '+item.name, item.id, remove)" class="mm-click" style="float: right;margin-left: 10px;">
+    <div style="text-align: center">
+      <div class="card" v-for="item in items">
+        <h5 class="card-header" style="color: #308ede;">
+          <router-link :to="{ name: 'CollectionShow', params: {id: item.id} }">
+            {{item.name}}
+          </router-link>
+          <span class="badge badge-default" style="margin: 0 5px;" v-for="tag in item.tag">{{tag}}</span>
+          <span v-on:click="showConfirm('Delete collection', 'delete '+item.name, item.id, remove)" class="mm-click" style="float: right;margin-left: 10px;">
         <icon name="remove"></icon>
         </span>
-        <router-link :to="{ name: 'CollectionUpdate', params: {id: item.id} }" style="float: right;">
-          <icon name="edit"></icon>
-        </router-link>
-      </h5>
-      <div class="card-block">
-        <p class="card-text" v-if="item.description">{{item.description}}</p>
-        <table class="table table-responsive">
-          <tbody>
+          <router-link :to="{ name: 'CollectionUpdate', params: {id: item.id} }" style="float: right;">
+            <icon name="edit"></icon>
+          </router-link>
+        </h5>
+        <div class="card-block">
+          <p class="card-text" v-if="item.description">{{item.description}}</p>
+          <table class="table table-responsive">
+            <tbody>
             <tr :class="{ 'distribute-warn': info.summary && (info.summary.assertions.failed > 0 || info.summary.testScripts.failed > 0) }" v-for="(info, distribute) in item.distributes">
               <td>
                 <button class="btn btn-default btn-sm">
@@ -75,8 +76,9 @@
                 </button>
               </td>
             </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
     <modal :collectionInfo="modal.collectionInfo" :title="modal.title" :show="modal.show" :failures="modal.failures" v-on:close="modal.show = false"></modal>
@@ -178,7 +180,9 @@
   a
     text-decoration: none
   .card
+    display: inline-block
     margin-bottom: 20px
+    text-align: initial
   .my-badge-primary
     color: #337ab7
     background-color: #fff
