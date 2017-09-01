@@ -1,8 +1,8 @@
 <template>
-  <div class="row" style="margin-bottom: 50px;">
+  <div style="margin-bottom: 50px;">
     <h1 class="distribute-title">{{distribute}}</h1>
-    <line-chart :chart-data="lineDataCollection" :options="{maintainAspectRatio: false}"></line-chart>
-    <line-chart :chart-data="failLineDataCollection" :options="{maintainAspectRatio: false}"></line-chart>
+    <line-chart :chart-data="lineDataCollection" :options="{responsive: true, maintainAspectRatio: false}" style="max-height: 20rem"></line-chart>
+    <line-chart :chart-data="failLineDataCollection" :options="{responsive: true, maintainAspectRatio: false}" style="max-height: 20rem"></line-chart>
     <div style="margin: auto;">
       <table class="table table-striped">
         <thead>
@@ -58,7 +58,7 @@
           data: [],
           page: 1,
           totalPage: 1,
-          count: 20
+          count: 10
         },
         modal: {
           show: false

@@ -74,8 +74,8 @@
       </div>
     </div>
     <div class="row" style="margin-bottom: 50px;">
-      <div class="col-5" v-if="assertionsFailures">
-        <table class="table">
+      <div class="col-5">
+        <table class="table" v-if="assertionsFailures">
           <thead>
             <tr>
               <th colspan="2" style="text-align: center">Assertions Failures</th>
@@ -90,8 +90,8 @@
         </table>
       </div>
       <div class="col-2"></div>
-      <div class="col-5" v-if="testScriptsFailures">
-        <table class="table">
+      <div class="col-5">
+        <table class="table" v-if="testScriptsFailures">
           <thead>
           <tr>
             <th colspan="2" style="text-align: center">TestScripts Failures</th>
@@ -109,17 +109,17 @@
     <div class="row" v-show="!showLine">
       <h1 style="margin: auto;color: #9e9e9e;">Loading...</h1>
     </div>
-    <show-chart v-show="showLine" :collectionId="collectionId" :summary="summary" :distribute="distribute" :key="distribute" v-for="(summary, distribute) in summaries"></show-chart>
+    <show-line-chart v-show="showLine" :collectionId="collectionId" :summary="summary" :distribute="distribute" :key="distribute" v-for="(summary, distribute) in summaries"></show-line-chart>
   </div>
 </template>
 
 <script>
-  import ShowChart from './ShowLineChart'
+  import ShowLineChart from './ShowLineChart'
 
   export default {
     name: 'collectionShow',
     components: {
-      ShowChart,
+      ShowLineChart,
     },
     data() {
       // from: http://www.cnblogs.com/zhangpengshou/archive/2012/07/19/2599053.html
