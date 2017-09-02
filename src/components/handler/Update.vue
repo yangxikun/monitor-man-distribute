@@ -102,7 +102,7 @@
           .then(() => {
             this.$router.push('/handler');
           }).catch(error => {
-          this.$bus.$emit('error', 'http request: ' + uri, error.message)
+          this.$bus.$emit('error', 'http request: ' + uri + error.message, error.response.data)
         });
       },
       syncCode: function (val) {

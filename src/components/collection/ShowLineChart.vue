@@ -123,6 +123,7 @@
           ]
         };
         this.pagingSummary.totalPage = Math.ceil(this.summary.length / this.pagingSummary.count);
+        this.pagingSummary.page = 1;
         this.paging(0);
       },
       showFailures(id, distribute, failures, title) {

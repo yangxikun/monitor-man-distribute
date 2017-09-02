@@ -76,6 +76,7 @@ const _newman = {
             if (execution.response) {
               execution.response.stream = execution.response.stream.toString();
             }
+            delete execution.cursor;
             failureExecutions.execution = execution;
             const jsonExecution = JSON.stringify(execution);
 
