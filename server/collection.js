@@ -56,7 +56,7 @@ router.get('/:collectionId/download/:type', async function (ctx) {
 router.get('/tag/:tag', async function (ctx) {
   const redisClient = redis.getReadConn();
   let collectionIds = await redisClient.smembersAsync('monitor-man-tag-'+ctx.params.tag);
-  if (!collectionIds) {
+  if (!collectionIds || collectionIds.length === 0) {
     ctx.response.body = [];
     return;
   }

@@ -10,7 +10,12 @@
             </button>
           </div>
           <div class="modal-body">
-            {{message}}
+            <div v-show="messageString">
+              {{messageString}}
+            </div>
+            <div class="json-view" v-show="messageJson">
+              <tree-view :data="messageJson" :options="{maxDepth: 3}"></tree-view>
+            </div>
           </div>
         </div>
       </div>
@@ -24,10 +29,24 @@
     props: {
       title: String,
       show: Boolean,
-      message: String
+      message: [String, Array, Object],
     },
     data() {
-      return {};
+      return {
+        messageString: "",
+        messageJson: null
+      };
+    },
+    watch: {
+      message(val) {
+        if (typeof val === "string") {
+          this.messageString = val;
+          this.messageJson = null;
+        } else {
+          this.messageString = "";
+          this.messageJson = val;
+        }
+      }
     },
     methods: {
       close() {

@@ -49,7 +49,7 @@
     data() {
       return {
         tags: [],
-        tag: this.$cookie.get('tag'),
+        tag: '',
         nav: 'home',
         errModal: {
           show: false
@@ -64,32 +64,33 @@
         this.errModal.show = true;
       });
       this.activateNav();
-      this.$http.get('/tag')
-        .then(resp => {
-          this.tags = resp.data;
-        }).catch(error => {
-        this.$bus.$emit('error', 'http request: /tag', error.message);
-      });
     },
     watch: {
       tag(val) {
-        if (val !== undefined) {
-          this.$bus.$emit('tag', val);
-        }
+        this.$bus.$emit('tag', val);
       },
       '$route': 'activateNav'
     },
     methods: {
       activateNav() {
-        this.$http.get('/tag')
-          .then(resp => {
-            this.tags = resp.data;
-          }).catch(error => {
-          this.$bus.$emit('error', 'http request: /tag', error.message);
-        });
         if (this.$route.name === 'Home') {
           this.contentPadding = 0;
           this.nav = 'home';
+          this.$http.get('/tag')
+            .then(resp => {
+              this.tags = resp.data;
+              let tag = this.$cookie.get('tag');
+              if (this.tags.indexOf(tag) === -1) {
+                tag = '';
+              }
+              if (tag !== this.tag) {
+                this.tag = tag;
+              } else {
+                this.$bus.$emit('tag', tag);
+              }
+            }).catch(error => {
+            this.$bus.$emit('error', 'http request: /tag', error.message);
+          });
         } else if (this.$route.name.indexOf('Collection') === 0) {
           this.contentPadding = 10;
           this.nav = 'collection';
@@ -98,7 +99,7 @@
           this.nav = 'handler';
         }
       },
-    }
+    },
   }
 </script>
 

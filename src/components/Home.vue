@@ -87,7 +87,6 @@
 </template>
 
 <script>
-  import Bus from '../Bus'
   import Modal from './modal/JsonViewModal'
   import ConfirmModal from './modal/ConfirmModal'
   export default {
@@ -110,12 +109,7 @@
       }
     },
     created() {
-      let tag = this.$cookie.get('tag');
-      if (!tag) {
-        tag = '';
-      }
-      this.fetchData(tag);
-      Bus.$on('tag', tag => {
+      this.$bus.$on('tag', tag => {
         this.$cookie.set('tag', tag, 30);
         this.fetchData(tag);
       });
@@ -172,6 +166,9 @@
             this.$bus.$emit('error', 'http request: ' + uri, error.message);
           });
       }
+    },
+    beforeDestroy () {
+      this.$bus.$off('tag');
     }
   }
 </script>
@@ -183,6 +180,7 @@
     display: inline-block
     margin-bottom: 20px
     text-align: initial
+    min-width: 76.8%
   .my-badge-primary
     color: #337ab7
     background-color: #fff

@@ -109,7 +109,7 @@
     <div class="row" v-show="!showLine">
       <h1 style="margin: auto;color: #9e9e9e;">Loading...</h1>
     </div>
-    <show-line-chart v-show="showLine" :collectionId="collectionId" :summary="summary" :distribute="distribute" :key="distribute" v-for="(summary, distribute) in summaries"></show-line-chart>
+    <show-line-chart v-if="showLine" :collectionId="collectionId" :summary="summary" :distribute="distribute" :key="distribute" v-for="(summary, distribute) in summaries"></show-line-chart>
   </div>
 </template>
 

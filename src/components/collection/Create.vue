@@ -125,7 +125,6 @@
     },
     methods: {
       updateDistributeList: function () {
-        console.log(this.form.distributeValue);
         if (this.form.distributeValue.length > 0) {
           let _distributes = this.form.distributeValue.split(',');
           _distributes = _distributes.filter(function(item){ return item !== "" });
@@ -145,7 +144,6 @@
         }
       },
       uploadFile: function (e, distribute, type) {
-        console.log(e.target.files);
         if (type === 'collection') {
           this.form['collection'] = e.target.files[0];
           return
@@ -166,8 +164,8 @@
           .then(() => {
             this.$router.push('/');
           }).catch(error => {
-            this.$bus.$emit('error', 'http request: ' + uri, error.message)
-        })
+            this.$bus.$emit('error', 'http request: ' + uri + error.message, error.response.data)
+        });
       }
     }
   }
