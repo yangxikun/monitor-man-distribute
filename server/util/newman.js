@@ -59,13 +59,13 @@ const _newman = {
         };
         let redisClientMulti = redisClient.multi();
         const failures = summary.run.failures;
+        let _failures = {};
         if (failures.length > 0) {
-          let _failures = {};
           for (let i in failures) {
             if (_failures[failures[i].cursor.ref]) {
-              _failures[failures[i].cursor.ref].push(failures[i]);
+              _failures[failures[i].cursor.ref].failures.push(failures[i]);
             } else {
-              _failures[failures[i].cursor.ref] = [failures[i]];
+              _failures[failures[i].cursor.ref] = {failures: [failures[i]], execution: null};
             }
           }
           for (let i in summary.run.executions) {
@@ -76,10 +76,11 @@ const _newman = {
             if (execution.response) {
               execution.response.stream = execution.response.stream.toString();
             }
+            failureExecutions.execution = execution;
             const jsonExecution = JSON.stringify(execution);
 
-            for (let index in failureExecutions) {
-              const failureExecution = failureExecutions[index];
+            for (let index in failureExecutions.failures) {
+              const failureExecution = failureExecutions.failures[index];
               const name = failureExecution.source.name + ': ' + failureExecution.error.message;
               const failureId = uuidv1();
               if (execution.assertions) {
@@ -110,6 +111,7 @@ const _newman = {
         // alert failures
         if (collectionInfo.handler !== '' && failures.length > 0) {
           const handler = await redisClient.hgetAsync('monitor-man-handler', collectionInfo.handler);
+          _failures = JSON.parse(JSON.stringify(_failures));
           if (handler) {
             const handlerParams = JSON.parse(collectionInfo.handlerParams);
             const request = require('postman-request');
@@ -118,7 +120,7 @@ const _newman = {
             const redisClient = redis.getWriteConn();
             const context = {
               console: console,
-              summary: summary,
+              failures: _failures,
               redis: redisClient,
               request: request,
               date: date,

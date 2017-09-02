@@ -214,9 +214,7 @@ router.post('/:id/update', async function (ctx) {
   }
   // update distributes
   const oldDistributes = collectionInfo.distributes;
-  console.log(oldDistributes);
   let distributeValue = collectionInfo['distributeValue'].split(',');
-  console.log(distributeValue)
   const ts = Date.now();
   for (let distribute in collectionInfo.distributes) {
     // remove distribute
@@ -231,7 +229,6 @@ router.post('/:id/update', async function (ctx) {
   }
   for (let index in distributeValue) {
     if (oldDistributes[distributeValue[index]]) {
-      console.log(collectionInfo.distributes, ts)
       collectionInfo.distributes[distributeValue[index]].timestamp = ts;
     } else {
       collectionInfo.distributes[distributeValue[index]] = {
@@ -293,10 +290,8 @@ router.post('/:id/update', async function (ctx) {
 
   // remove tag, if tag does not relate to any collection
   redisClient = redis.getWriteConn();
-  console.log(remTagKeys)
   for (let index in remTagKeys) {
     const count = await redisClient.scardAsync('monitor-man-tag-' + remTagKeys[index]);
-    console.log(count, remTagKeys[index])
     if (count === 0) {
       await redisClient.sremAsync('monitor-man-tag', remTagKeys[index]);
     }

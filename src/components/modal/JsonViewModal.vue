@@ -43,19 +43,21 @@
     watch: {
       failures(val) {
         this.failureSelected = Object.keys(val)[0];
+        document.body.classList.add('modal-open');
       },
       failureSelected(id) {
-        console.log(this.collectionInfo)
-        this.$http.get('/collection/'+this.collectionInfo.id+'/'+this.collectionInfo.distribute+'/failure/' + id).then(resp => {
+        const uri = '/collection/'+this.collectionInfo.id+'/'+this.collectionInfo.distribute+'/failure/' + id;
+        this.$http.get(uri).then(resp => {
           this.failureData = resp.data;
         }).catch(error => {
-          console.log(error);
+          this.$bus.$emit('error', 'http request: ' + uri, error.message)
         });
       }
     },
     methods: {
       close() {
         this.$emit('close');
+        document.body.classList.remove('modal-open');
       }
     }
   }
@@ -67,15 +69,17 @@
     padding: 0.25rem
     border-radius: 0.2rem
   .modal-dialog
-    max-width: 50%
-    max-height: 50%
+    min-width: 50%
   .json-view
     overflow-y: scroll
-    max-height: 80vh
+    max-height: 75vh
     margin: 20px 10px
 </style>
 
 <style lang="stylus">
   .tree-view-item-value-string
     white-space: normal
+  body.modal-open {
+    overflow: hidden;
+  }
 </style>
