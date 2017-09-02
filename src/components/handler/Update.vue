@@ -19,7 +19,7 @@
           <a href="https://www.npmjs.com/package/postman-request">request</a>,
           <a href="https://www.npmjs.com/package/date-and-time">date</a>,
           <a href="https://www.npmjs.com/package/sprintf-js">sprintf/vsprintf</a>,
-          handlerParams, failures
+          handlerParams, failures, distribute
         </p>
       </div>
       <button type="submit" class="btn btn-primary mm-click">Submit</button>
