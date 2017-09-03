@@ -26,7 +26,7 @@ HTTP API monitor based on postman and newman. It provides webui for newman, and 
 #### BY Docker
 
 1. `docker pull yangxikun/monitor-man-distribute`(https://hub.docker.com/r/yangxikun/monitor-man-distribute/)
-1. `docker run --name monitor-man --env REDIS_WHOST=10.17.16.5 --env REDIS_RHOST=10.17.16.5 --env REDIS_PORT=6379 --env REDIS_DB=1 --env REDIS_AUTH=foobar123 --env TIMEZONE=Asia/Shanghai --env IDC=shlt -p 8889:8889 yangxikun/monitor-man-distribute:2.0.0`
+1. `docker run --name monitor-man-distribute --env REDIS_WHOST=10.17.16.5 --env REDIS_RHOST=10.17.16.5 --env REDIS_PORT=6379 --env REDIS_DB=1 --env REDIS_AUTH=foobar123 --env TIMEZONE=Asia/Shanghai --env IDC=shlt -p 8889:8889 yangxikun/monitor-man-distribute:2.0.0`
 1. now, visit http://127.0.0.1:8889
 
 build docker image:
@@ -46,7 +46,7 @@ build docker image:
 * REDIS_DB
 * TIMEZONE: see `/usr/share/zoneinfo/`(docker only)
 * LOG_LEVEL: default debug, see [log4js](https://www.npmjs.com/package/log4js)
-* IDC: the environment variable used by monitor-man to distinguish different data center(the environment var name is custom)
+* IDC: the environment variable used by monitor-man to distinguish different data center(the env var name is custom)
 
 ## Doc
 see [Wiki](https://github.com/yangxikun/monitor-man-distribute/wiki)
