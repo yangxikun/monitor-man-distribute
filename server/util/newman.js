@@ -30,7 +30,7 @@ const _newman = {
         }
 
         const curDistribute = process.env[collectionInfo.distributeName];
-        newmanIntervalLogger.info('collection#' + collectionId + '-' + curDistribute + ' run complete!');
+        newmanIntervalLogger.info('collection#' + collectionInfo.name + '-' + curDistribute + ' run complete!');
         if (!collectionInfo.distributes[curDistribute]) {
           newmanIntervalLogger.info('collection#' + collectionId + '-' + curDistribute + ' has been delete, stop run!')
           this.stop(collectionId);
@@ -84,13 +84,12 @@ const _newman = {
               const failureExecution = failureExecutions.failures[index];
               const name = failureExecution.source.name + ': ' + failureExecution.error.message;
               const failureId = uuidv1();
-              if (execution.assertions) {
+              if (failureExecution.error.name === 'AssertionFailure') {
                 const _failureId = failureId+'a'+i+index;
                 _summary['assertions'].failures[_failureId] = name;
                 redisClientMulti = redisClientMulti
                   .hset('monitor-man-summary-failures-' + collectionId + '-' + curDistribute, _failureId, jsonExecution);
-              }
-              if (execution.testScript) {
+              } else {
                 const _failureId = failureId+'t'+i+index;
                 _summary['testScripts'].failures[_failureId] = name;
                 redisClientMulti = redisClientMulti
