@@ -2,7 +2,7 @@
 
 HTTP API monitor based on postman and newman. It provides webui for newman, and some other useful things.
 
-> This is the "distribute" version of [monitor-man](https://github.com/yangxikun/monitor-man)
+> This is the "distribute" version of [monitor-man](https://github.com/yangxikun/monitor-man), for deploy monitor-man in multi IDC(create one collection then running in multi IDC)
 
 ![Home Page](https://github.com/yangxikun/monitor-man-distribute/raw/master/static/images/home.png)
 
